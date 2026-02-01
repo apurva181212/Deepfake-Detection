@@ -1,202 +1,262 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Deepfake Detection System</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deepfake Detection | CNN–GNN Ensemble</title>
 
-  <!-- ✅ Embedded CSS -->
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+<style>
+/* ================= BASE ================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: radial-gradient(circle at top left, #050505, #1c1c1c);
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      text-align: center;
-    }
+body {
+  font-family: 'Poppins', sans-serif;
+  background: radial-gradient(circle at top, #050505, #121212);
+  color: #ffffff;
+  text-align: center;
+}
 
-    h1 {
-      font-size: 2.5rem;
-      color: #00e6ff;
-      text-shadow: 0 0 15px #00e6ff;
-      margin-bottom: 25px;
-      letter-spacing: 2px;
-    }
+/* ================= HERO ================= */
+.hero {
+  padding: 80px 20px 50px;
+}
 
-    form {
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 20px;
-      padding: 40px 30px;
-      box-shadow: 0 0 20px rgba(0, 230, 255, 0.4);
-      width: 90%;
-      max-width: 420px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      transition: 0.3s;
-    }
+.hero h1 {
+  font-size: 3rem;
+  color: #00e6ff;
+  text-shadow: 0 0 20px #00e6ff;
+}
 
-    form:hover {
-      box-shadow: 0 0 35px rgba(0, 230, 255, 0.6);
-      transform: scale(1.02);
-    }
+.hero p {
+  max-width: 850px;
+  margin: 20px auto;
+  color: #cccccc;
+  font-size: 1.05rem;
+}
 
-    input[type="file"] {
-      background: transparent;
-      border: 2px solid #00e6ff;
-      border-radius: 8px;
-      color: #00e6ff;
-      padding: 10px;
-      margin: 15px 0;
-      width: 100%;
-      cursor: pointer;
-      text-align: center;
-    }
+/* ================= UPLOAD ================= */
+.upload {
+  margin: 40px auto;
+}
 
-    input[type="file"]::file-selector-button {
-      background: #00e6ff;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 6px;
-      margin-right: 10px;
-      cursor: pointer;
-    }
+form {
+  background: rgba(255,255,255,0.07);
+  padding: 35px;
+  border-radius: 18px;
+  width: 90%;
+  max-width: 450px;
+  margin: auto;
+  box-shadow: 0 0 30px rgba(0,230,255,0.4);
+}
 
-    button {
-      background: linear-gradient(90deg, #00e6ff, #00ff99);
-      color: white;
-      border: none;
-      padding: 12px 35px;
-      border-radius: 25px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: 0.3s;
-      box-shadow: 0 0 15px rgba(0, 230, 255, 0.4);
-    }
+input[type="file"] {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 2px solid #00e6ff;
+  background: transparent;
+  color: #00e6ff;
+  margin-bottom: 20px;
+}
 
-    button:hover {
-      transform: scale(1.05);
-      background: linear-gradient(90deg, #00ff99, #00e6ff);
-      box-shadow: 0 0 25px rgba(0, 255, 204, 0.7);
-    }
+input[type="file"]::file-selector-button {
+  background: #00e6ff;
+  color: #000;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
 
-    .loading {
-      margin-top: 25px;
-      color: #aaa;
-      font-size: 1rem;
-      display: none;
-    }
+button {
+  padding: 12px 35px;
+  border-radius: 30px;
+  border: none;
+  font-weight: 600;
+  background: linear-gradient(90deg, #00e6ff, #00ff99);
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(0,230,255,0.6);
+}
 
-    .spinner {
-      border: 5px solid rgba(255, 255, 255, 0.1);
-      border-top: 5px solid #00ffcc;
-      border-radius: 50%;
-      width: 45px;
-      height: 45px;
-      margin: 0 auto 10px;
-      animation: spin 1s linear infinite;
-    }
+button:hover {
+  transform: scale(1.05);
+}
 
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
+/* ================= RESULT DASHBOARD ================= */
+.result-dashboard {
+  max-width: 900px;
+  margin: 70px auto;
+  padding: 30px;
+}
 
-    .result {
-      margin-top: 30px;
-      padding: 20px;
-      border-radius: 15px;
-      width: 90%;
-      max-width: 400px;
-      font-size: 1.4rem;
-      font-weight: 500;
-      animation: fadeIn 0.8s ease-in-out;
-    }
+.result-dashboard h2 {
+  color: #00e6ff;
+  margin-bottom: 30px;
+  text-shadow: 0 0 15px #00e6ff;
+}
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.9); }
-      to { opacity: 1; transform: scale(1); }
-    }
+.result-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 25px;
+}
 
-    .real {
-      background: rgba(0, 255, 128, 0.15);
-      border: 2px solid #00ff99;
-      color: #00ffcc;
-      box-shadow: 0 0 20px #00ff88;
-    }
+.card {
+  background: rgba(255,255,255,0.07);
+  padding: 25px;
+  border-radius: 18px;
+  box-shadow: 0 0 20px rgba(0,230,255,0.25);
+}
 
-    .fake {
-      background: rgba(255, 0, 64, 0.15);
-      border: 2px solid #ff3366;
-      color: #ff4d6d;
-      box-shadow: 0 0 20px #ff3366;
-    }
+.card h3 {
+  color: #00ffcc;
+  margin-bottom: 12px;
+}
 
-    .error {
-      background: rgba(255, 128, 0, 0.15);
-      border: 2px solid #ffb347;
-      color: #ffcc80;
-    }
+.card p {
+  margin: 6px 0;
+}
 
-    footer {
-      position: fixed;
-      bottom: 10px;
-      color: #888;
-      font-size: 0.9rem;
-    }
-  </style>
+.decision.fake {
+  border: 2px solid #ff3366;
+  color: #ff4d6d;
+  box-shadow: 0 0 25px #ff3366;
+}
+
+.decision.real {
+  border: 2px solid #00ff99;
+  color: #00ffcc;
+  box-shadow: 0 0 25px #00ff99;
+}
+
+.big {
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+.warn {
+  color: #ffcc66;
+  font-weight: 500;
+}
+
+/* ================= GRAPH ================= */
+.graph-box {
+  margin-top: 45px;
+  padding: 30px;
+  background: rgba(0,0,0,0.4);
+  border-radius: 20px;
+  box-shadow: 0 0 25px rgba(0,230,255,0.4);
+}
+
+/* ================= FOOTER ================= */
+footer {
+  margin-top: 60px;
+  padding: 20px;
+  font-size: 0.9rem;
+  color: #888;
+}
+</style>
 </head>
 
 <body>
-  <h1>Deepfake Detection System</h1>
 
-  <!-- Upload Form -->
-  <form id="upload-form" action="/predict" method="post" enctype="multipart/form-data" onsubmit="showLoading()">
+<!-- HERO -->
+<div class="hero">
+  <h1>Deepfake Detection System</h1>
+  <p>
+    A multimodal deepfake detection framework using <b>CNN-based facial analysis</b> and
+    <b>GNN-based body & hand gesture modeling</b>, fused through ensemble learning.
+  </p>
+</div>
+
+<!-- UPLOAD -->
+<div class="upload">
+  <form action="/predict" method="POST" enctype="multipart/form-data">
     <input type="file" name="video" accept="video/*" required>
     <button type="submit">Analyze Video</button>
   </form>
+</div>
 
-  <!-- Loading Spinner -->
-  <div id="loading" class="loading">
-    <div class="spinner"></div>
-    <p>Analyzing video... Please wait 🔍</p>
+<!-- ================= RESULT ================= -->
+{% if result %}
+<div class="result-dashboard">
+
+  <h2>🔍 Detection Result</h2>
+
+  <div class="result-grid">
+
+    <div class="card decision {{ 'real' if result.label == 'REAL' else 'fake' }}">
+      <h3>Final Decision</h3>
+      <p class="big">{{ result.label }}</p>
+      <p>Confidence: <b>{{ result.confidence }}%</b></p>
+    </div>
+
+    <div class="card">
+      <h3>🧠 Model Breakdown</h3>
+      <p>Facial CNN Score : <b>{{ result.cnn_score }}%</b></p>
+      <p>Gesture GNN Score : <b>{{ result.gnn_score }}%</b></p>
+      <p>Ensemble Output : <b>{{ result.ensemble_score }}%</b></p>
+    </div>
+
+    <div class="card">
+      <h3>🧍 Gesture Analysis</h3>
+      <p class="warn">{{ result.gesture_analysis }}</p>
+    </div>
+
+    <div class="card">
+      <h3>⏱ Performance</h3>
+      <p>Processing Time : <b>{{ result.processing_time }} seconds</b></p>
+    </div>
+
   </div>
 
-  <!-- Result -->
-  {% if result %}
-    {% if result.error %}
-      <div class="result error">
-        <p><strong>Error:</strong> {{ result.error }}</p>
-      </div>
-    {% else %}
-      <div class="result {% if result.label == 'REAL' %}real{% else %}fake{% endif %}">
-        <h2>{{ result.label }}</h2>
-        <p>Confidence: <strong>{{ result.confidence }}%</strong></p>
-      </div>
-    {% endif %}
-  {% endif %}
+  <div class="graph-box">
+    <canvas id="scoreChart"></canvas>
+  </div>
 
-  <footer>InnoQuest 2025 • Deepfake Detection by Apurva & Team</footer>
+</div>
+{% endif %}
 
-  <script>
-    // Show "Analyzing..." loader when form is submitted
-    function showLoading() {
-      document.getElementById("loading").style.display = "block";
+<footer>
+  InnoQuest 2025 • Deepfake Detection using CNN–GNN Ensemble
+  <br> Don Bosco Institute of Technology
+</footer>
+
+{% if result %}
+<script>
+const ctx = document.getElementById('scoreChart');
+
+new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: ['Facial CNN', 'Gesture GNN', 'Ensemble'],
+    datasets: [{
+      data: [
+        {{ result.cnn_score }},
+        {{ result.gnn_score }},
+        {{ result.ensemble_score }}
+      ],
+      backgroundColor: ['#00e6ff', '#00ff99', '#ff4d6d'],
+      borderRadius: 10
+    }]
+  },
+  options: {
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: true, max: 100, ticks: { color: '#ccc' } },
+      x: { ticks: { color: '#ccc' } }
     }
-  </script>
+  }
+});
+</script>
+{% endif %}
+
 </body>
 </html>

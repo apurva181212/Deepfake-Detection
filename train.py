@@ -1,9 +1,12 @@
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.applications import ResNet50
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import GlobalAveragePooling2D, Dense
-from tensorflow.keras.callbacks import ModelCheckpoint
 import tensorflow as tf
+
+ImageDataGenerator = tf.keras.preprocessing.image.ImageDataGenerator
+ResNet50 = tf.keras.applications.ResNet50
+Sequential = tf.keras.models.Sequential
+GlobalAveragePooling2D = tf.keras.layers.GlobalAveragePooling2D
+Dense = tf.keras.layers.Dense
+ModelCheckpoint = tf.keras.callbacks.ModelCheckpoint
+
 
 IMG_SIZE = (224, 224)
 BATCH_SIZE = 8

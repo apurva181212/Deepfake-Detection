@@ -1,9 +1,21 @@
 from flask import Flask, render_template, request
-import numpy as np
+
 import os
+import tensorflow as tf
 from utils import extract_frames
-from model import model
-from tensorflow.keras.applications.resnet50 import preprocess_input
+import numpy as np
+
+model = tf.keras.models.load_model(
+    "deepfake_model.h5",
+    compile=False
+)
+
+
+import tensorflow as tf
+
+preprocess_input = tf.keras.applications.resnet50.preprocess_input
+
+
 # this change is only for account B
 
 

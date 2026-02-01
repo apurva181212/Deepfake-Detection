@@ -2,31 +2,6 @@ import cv2
 import mediapipe as mp
 import numpy as np
 
-# -----------------------------
-# Existing CNN frame extractor
-# -----------------------------
-def extract_frames(video_path, num_frames=5):
-    frames = []
-    cap = cv2.VideoCapture(video_path)
-    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    step = max(1, total_frames // num_frames)
-
-    for i in range(0, total_frames, step):
-        cap.set(cv2.CAP_PROP_POS_FRAMES, i)
-        ret, frame = cap.read()
-        if ret:
-            frame = cv2.resize(frame, (224, 224))
-            frames.append(frame)
-        if len(frames) >= num_frames:
-            break
-
-    cap.release()
-    return frames
-
-
-# -----------------------------
-# PHASE 5: Gesture Extraction
-# -----------------------------
 mp_holistic = mp.solutions.holistic
 
 POSE_LANDMARKS = 33
@@ -39,6 +14,7 @@ def extract_gesture_landmarks(video_path, max_frames=64):
     with mp_holistic.Holistic(
         static_image_mode=False,
         model_complexity=1,
+        enable_segmentation=False,
         refine_face_landmarks=False
     ) as holistic:
 
@@ -53,21 +29,21 @@ def extract_gesture_landmarks(video_path, max_frames=64):
 
             frame_landmarks = []
 
-            # Pose landmarks
+            # Pose
             if results.pose_landmarks:
                 for lm in results.pose_landmarks.landmark:
                     frame_landmarks.extend([lm.x, lm.y, lm.z])
             else:
                 frame_landmarks.extend([0] * POSE_LANDMARKS * 3)
 
-            # Left hand landmarks
+            # Left Hand
             if results.left_hand_landmarks:
                 for lm in results.left_hand_landmarks.landmark:
                     frame_landmarks.extend([lm.x, lm.y, lm.z])
             else:
                 frame_landmarks.extend([0] * HAND_LANDMARKS * 3)
 
-            # Right hand landmarks
+            # Right Hand
             if results.right_hand_landmarks:
                 for lm in results.right_hand_landmarks.landmark:
                     frame_landmarks.extend([lm.x, lm.y, lm.z])
@@ -78,4 +54,4 @@ def extract_gesture_landmarks(video_path, max_frames=64):
             frame_count += 1
 
     cap.release()
-    return np.array(all_frames)  # (T, joints*3)
+    return np.array(all_frames)  # shape: (T, N*3)
